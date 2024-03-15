@@ -16,7 +16,7 @@ public struct OpenAIEndpointProvider {
     
     public enum Source {
         case openAI
-        case proxy(path: ((API) -> String), method: ((API) -> String))
+        case proxy(path: ((API) -> String), method: ((API) -> String), query: ((API) -> [URLQueryItem]))
     }
     
     public let source: Source
@@ -42,7 +42,7 @@ public struct OpenAIEndpointProvider {
                 case .moderations:
                     return "/v1/moderations"
             }
-        case let .proxy(path: pathClosure, method: _):
+            case let .proxy(path: pathClosure, method: _, query: _):
             return pathClosure(api)
         }
     }
@@ -54,8 +54,20 @@ public struct OpenAIEndpointProvider {
             case .completions, .edits, .chat, .images, .embeddings, .moderations:
                 return "POST"
             }
-        case let .proxy(path: _, method: methodClosure):
+        case let .proxy(path: _, method: methodClosure, query: _):
             return methodClosure(api)
+        }
+    }
+
+    func getQueryItems(api: API) -> [URLQueryItem]? {
+        switch source {
+        case .openAI:
+            switch api {
+            case .completions, .edits, .chat, .images, .embeddings, .moderations:
+                return nil
+            }
+        case let .proxy(path: _, method: _ , query: queryItemsClosure):
+            return queryItemsClosure(api)
         }
     }
 }

@@ -307,7 +307,13 @@ extension OpenAISwift {
         urlComponents?.path = config.endpointProvider.getPath(api: endpoint)
         var request = URLRequest(url: urlComponents!.url!)
         request.httpMethod = config.endpointProvider.getMethod(api: endpoint)
-        
+
+        if let additionalQueryItems = config.endpointProvider.getQueryItems(api: endpoint) {
+            var queryItems = urlComponents?.queryItems ?? []
+            queryItems.append(contentsOf: additionalQueryItems)
+            urlComponents?.queryItems = queryItems
+        }
+
         config.authorizeRequest(&request)
         
         request.setValue("application/json", forHTTPHeaderField: "content-type")
