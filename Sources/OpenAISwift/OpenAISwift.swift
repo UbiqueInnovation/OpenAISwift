@@ -305,14 +305,15 @@ extension OpenAISwift {
     private func prepareRequest<BodyType: Encodable>(_ endpoint: OpenAIEndpointProvider.API, body: BodyType) -> URLRequest {
         var urlComponents = URLComponents(url: URL(string: config.baseURL)!, resolvingAgainstBaseURL: true)
         urlComponents?.path = config.endpointProvider.getPath(api: endpoint)
-        var request = URLRequest(url: urlComponents!.url!)
-        request.httpMethod = config.endpointProvider.getMethod(api: endpoint)
 
         if let additionalQueryItems = config.endpointProvider.getQueryItems(api: endpoint) {
             var queryItems = urlComponents?.queryItems ?? []
             queryItems.append(contentsOf: additionalQueryItems)
             urlComponents?.queryItems = queryItems
         }
+
+        var request = URLRequest(url: urlComponents!.url!)
+        request.httpMethod = config.endpointProvider.getMethod(api: endpoint)
 
         config.authorizeRequest(&request)
         
